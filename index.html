@@ -24,6 +24,27 @@
       </div>
     </div>
     <script>
+      // ===== 키보드 입력 문제 해결 코드 추가 시작 =====
+      
+      // 방향키 및 스페이스바의 기본 동작 방지
+      document.addEventListener('keydown', function(e) {
+        // 방향키들 (37: 왼쪽, 38: 위, 39: 오른쪽, 40: 아래)
+        // 스페이스바 (32), Tab (9) 등
+        if([16, 32, 37, 38, 39, 40, 9].indexOf(e.keyCode) > -1) {
+          e.preventDefault();
+        }
+      }, false);
+      
+      // 스크롤 방지
+      document.addEventListener('wheel', function(e) {
+        var canvas = document.querySelector("#unity-canvas");
+        if (document.activeElement === canvas) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+      
+      // ===== 키보드 입력 문제 해결 코드 추가 끝 =====
+
       var canvas = document.querySelector("#unity-canvas");
 
       // Shows a temporary message banner/ribbon for a few seconds, or
@@ -78,7 +99,7 @@
       // config.autoSyncPersistentDataPath = true;
       // This autosyncing is currently not the default behavior to avoid regressing
       // existing user projects that might rely on the earlier manual
-      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
+      // JS_FileSystem_Sync() behavior, but in future Unity version, this is
       // expected to change.
 
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -111,6 +132,17 @@
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
               }).then((unityInstance) => {
                 document.querySelector("#unity-loading-bar").style.display = "none";
+                
+                // ===== Unity 로드 후 포커스 설정 추가 =====
+                // Unity 인스턴스가 로드된 후 캔버스에 포커스 설정
+                canvas.focus();
+                
+                // 캔버스 클릭 시 포커스 확보
+                canvas.addEventListener('click', function() {
+                  canvas.focus();
+                });
+                // ===== 포커스 설정 추가 끝 =====
+                
                 document.querySelector("#unity-fullscreen-button").onclick = () => {
                   unityInstance.SetFullscreen(1);
                 };
